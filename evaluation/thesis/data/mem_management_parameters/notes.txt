@@ -1,0 +1,3 @@
+Noise and Driftwidth open alright, need code to regen results, this is in thesis_figures.
+Filter Threshold was done a bit differently, since it wasn't a parameter of the system. Code to regen results relies on old version of sklearn to load pickles.
+Use sysmem conda env, saved in reqs.txt.

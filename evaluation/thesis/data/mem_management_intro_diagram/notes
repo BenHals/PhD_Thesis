@@ -1,0 +1,4 @@
+I saved the data for this experiment in a pickle.
+Since packages have been updated, this pickle now fails to open using new versions.
+I have saved the requirements of a conda env which can open them in reqs.txt, I think the issue will be in scikit-multiflow or numpy as we save hoeffding tree classes and ndarrays.
+I have also extracted relevant data into json files for easy access.

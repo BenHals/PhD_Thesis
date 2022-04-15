@@ -1,0 +1,42 @@
+backcall==0.2.0
+certifi==2020.12.5
+colorama @ file:///tmp/build/80754af9/colorama_1607707115595/work
+cycler==0.10.0
+decorator==4.4.2
+graphviz==0.14.1
+ipykernel @ file:///C:/ci/ipykernel_1596190155316/work/dist/ipykernel-5.3.4-py3-none-any.whl
+ipython @ file:///C:/ci/ipython_1604083276484/work
+ipython-genutils @ file:///tmp/build/80754af9/ipython_genutils_1606773439826/work
+jedi @ file:///C:/ci/jedi_1608920753641/work
+joblib==0.16.0
+jupyter-client @ file:///tmp/build/80754af9/jupyter_client_1601311786391/work
+jupyter-core @ file:///C:/ci/jupyter_core_1606149073702/work
+kiwisolver==1.2.0
+matplotlib==3.3.1
+numpy==1.19.1
+pandas==1.1.0
+parso==0.7.0
+pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
+Pillow==7.2.0
+prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1602688806899/work
+psutil==5.7.2
+Pygments @ file:///tmp/build/80754af9/pygments_1610565767015/work
+Pympler==0.8
+pyparsing==2.4.7
+python-dateutil==2.8.1
+pytz==2020.1
+pywin32==227
+pyzmq==20.0.0
+scikit-learn==0.23.2
+scikit-multiflow==0.4.0
+scipy==1.5.2
+seaborn==0.10.1
+six @ file:///C:/ci/six_1605187374963/work
+sortedcontainers==2.2.2
+tailer==0.4.1
+threadpoolctl==2.1.0
+tornado @ file:///C:/ci/tornado_1606942392901/work
+tqdm==4.57.0
+traitlets @ file:///tmp/build/80754af9/traitlets_1602787416690/work
+wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
+wincertstore==0.2

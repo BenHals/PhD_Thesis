@@ -1,0 +1,180 @@
+Good set of defaults in T14.
+T14-4 reduces the min-likelihood thresholds to 0.05, which seems to work well. Try reducing further in T14-5.
+	RESULT: Reducing to 0.025 makes it worse. Need some sentivitity analysis, between 0.025 and 0.125.
+	Finished: Run sensitivity on likelihoods at current parameters on TOMSK:
+		min_drift_likelihood:
+			CMC - 0.05 seems to work best
+			Arabic - 0.125 seems to be best acc, but 0.075 best acc and CF1
+			So try 0.05 and 0.075
+			FIN: Testing on HOME@0.075 - Slightly worse than 0.05. Seems to be a good one.
+		min_posterior_threshold:
+			No effect really
+			Maybe needs to be higher? Or the sensitivity needs to be higher?
+
+TOMSK: increasing min_sim_stdev does seem to help Arabic and CMC. Past tests show it might have a bad effect on AQTemp. Try out a higher val, maybe 0.015, and see if it works for AQTemp.
+	Running: T14-8 - DONE
+	Result: Slightly lower acc, but much higher CF1. - Setting as DefaultV4.
+	Done: Further investigation with more samples on TOMSK.
+		RESULT: V4 is better for Arabic and CMC, with lower acc on AQTemp (0.776 -> 0.756), but with much higher CF1 (0.679 -> 0.799). So overall better?
+	DONE: Try slightly higher min_sim_stdev: 0.015 -> 0.02. TOMSK showed was slightly better again for cmc and Arabic.
+		RESULT: slightly better for cmc, arabic, much worse for AQTemp.
+		DONE: Try 0.0175 RESULT: better than 0.02, but worse than 0.015 overall.
+		DONE: Try 0.01625 RESULT: Equiv to 0.015, Arabic slightly better but AQTemp & cmc slightly worse.
+		I think 0.015 is good, more testing might be able to set this better.
+	NOTES: Would rather not have this param or set low. A high value is ironing out noise in similarity. Can we remove this more naturally?
+
+T14-7 increases the grace_period_threshold from 0.2 -> 0.4, (which is also the stable state requirement).
+	Result: Worse performance.
+	DONE: Run sensitivity analysis on TOMSK to figure out if 0.2 is the best setting.
+		RESULTS: Seems like increasing does work better for cmc and Arabic, need more testing
+		FIN: Test with higher vals, and on AQTemp
+			Running higher vals @ TOMSK, on AQTemp @ HOME, 0.3
+			0.3 very very slightly better for cmc and arabic, but worse for AQTemp
+			Higher vals drop off quick, 0.2 seems good.
+
+TV4-5 testing removing minimum_concept_likelihood (setting to v low value, 0.001).
+	Partial results: Almost the same as TV4 for cmc, better acc and CF1 for Arabic. Waiting for AQTemp, but promising!
+	RESULT: drop for AQTemp - try higher
+	TTV4-6 RESULT: Tested 0.005 - Good! Higher AQTemp and Arabic, and similar cmc.
+		Add to default?
+	Fin: Run more options between 0.001 and 0.1 on TOMSK for more detailed options.
+		Running @ TOMSK
+		Doesn't seem to make much difference...
+
+TOMSK testing state_grace_period_window_multiplier.
+
+
+FIN: Run large test of DefaultV4 on TOMSK (waiting on DefaultV3 to finish) (RUNNING - defaultV4)
+Fin: Analyse likelihood experiment currently running on TOMSK (restarted due to deadlock issue, defaultV4likelihoods)
+	Finished running, need analysis
+	0.05 seem alright
+FIN P: Analyse effect of min_sim_stdev further - Have results from TOMSK so mostly seeing how much we can push it. (0.02 too high 0.0175 TV4-3 too high, 0.015 seems good)
+FIN: Start grace_period_thresh analysis on TOMSK. (Running defaultV4gpt)
+	RESULTS: Seems like increasing does work better for cmc and Arabic, need more testing
+	FIN: Test with higher vals, and on AQTemp
+	0.2 seems good.
+TODO" Analyse minimum_concept_likelihood 0.001 - 0.1 on TOMSK 
+	
+TODO: Look at remaining params - 
+	
+
+Found V5 slightly better than V4
+
+Starting param senstivity analysis: using 45 seeds:
+fp_gap:
+(home)		python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datalocation ..\..\CCRawData --experimentname SV5-fpgap --cpu 20 --desc "Sensitivity analysis for default V5. Testing fp_gap" --fp_gap 3 6 9 12 15 18 21
+(nectar)	python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datalocation ..\..\CCRawData --experimentname SV5-simgap --cpu 20 --desc "Sensitivity analysis for default V5. Testing sim_gap" --fp_gap 3 6 9 12 15 18 21 
+
+New faster online version, V6
+
+Tested sensitivities, found some new combinations:
+	Sensitivity, State_estiamtor_risk, State_estimator_swap_risk
+	0.5		0.5			0.5 		- 0.8375, 0.828 (Testing) - Acc similar, bit higher, CF1 reduced.
+	0.5		0.5			0.25		- 0.8395, 0.8395 (Similar to above, but slighttly worse)
+	0.1		0.5			0.1		- 0.835,  0.831 (Could be good!)	
+	0.3		0.75			0.1		- 0.8375, 0.83 (Good! bit worse for cmc and not quite so good for arabic. But less reduction in AQTemp)
+	0.3		0.75			0.25		- 0.837, 0.824 (Good!)
+	0.3		0.75			0.75		- 0.8375, 0.83 (Good!) Maybe best?
+
+Things to try in meta-feature extraction:
+	Change bias for stdev, skew and kurtosis
+	Change turning point rate calc
+	defaults for unfound acf and pacf
+
+Default V8
+
+	Found that turning off pacf is quicker, with not much effect on performance
+	Turning off both acf and pacf is even quicker, but has some performance impacts
+	(RUNNING) turn off only acf
+
+Try: 	Buffer ratio -> 0.15 (0.2 seems better)
+	min_sim_stdev -> 0.01
+	max_sim_stdev -> 0.15
+	ob_gap -> 8
+
+TV8-12 seems good - uses Sensitivity settings 6 python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 --datalocation ..\..\CCRawData --experimentname TV8-12-nopacf --ifeatures IMF MI pacf --sensitivity 0.3 --state_estimator_risk 0.75 --state_estimator_swap_risk 0.75 --cpu 15 --desc "Testing V8 with smaller buffer ratio"
+TV8-12-3-nopacf - Better: python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 --datalocation ..\..\CCRawData --experimentname TV8-12-3-nopacf --ifeatures IMF MI pacf --buffer_ratio 0.2 --min_sim_stdev 0.01 --max_sim_stdev 0.15 --ob_gap 8 --sensitivity 0.3 --state_estimator_risk 0.75 --state_estimator_swap_risk 0.75 --cpu 15 --desc "Testing V8-12 with other settings"
+TV8-12-5-nopacf - Even Better: python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 --datalocation ..\..\CCRawData --experimentname TV8-12-5-nopacf --ifeatures IMF MI pacf --buffer_ratio 0.2 --min_sim_stdev 0.0125 --max_sim_stdev 0.15 --ob_gap 8 --sensitivity 0.3 --state_estimator_risk 0.75 --state_estimator_swap_risk 0.75 --cpu 15 --desc "Testing V8-12 with other settings"
+TV8-12-7-nopacf - Best: python run_experiment.py --datasets Arabic cmc AQTemp --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 --datalocation ..\..\CCRawData --experimentname TV8-12-7-nopacf --ifeatures IMF MI pacf --buffer_ratio 0.2 --min_sim_stdev 0.01075 --max_sim_stdev 0.15 --ob_gap 8 --sensitivity 0.3 --state_estimator_risk 0.75 --state_estimator_swap_risk 0.75 --cpu 15 --desc "Testing V8-12 with other settings"
+	
+Try higher min_drift_likelihood_threshold - Though the test was mixed with increased posterior, so needs to be run again!
+	- Seems like higher thresholds (easier swapping) leads to increased accuracy but possibly reduced CF1
+minimum_concept_likelihood good at 0.005
+Not too sensitive to state_estimated_swap_risk
+
+Try to see what is wrong with CF1 at higher thresholds - can we repair the model history to improve?
+	- Seems like model merging and repair helps a lot with CF1!
+	- Just make sure threshold for merging is not too low, 0.7 is too low for AQTemp, but 0.75 up works well. 0.9 seems good too? 0.95 too high
+	- Try higher likelihood thresholds with these changes (TODO)
+	- TOMSK thresholds2 experiment indicates 0.2, 0.2 works better - maybe a sensitivity issue?
+		-Possibly default sensitivity @ higher thresholds works better?
+
+Bypass_grace_period_threshold - seems like maybe higher could be better? Try up to 0.5
+	-Higher could be better, try a run at 0.425
+
+state_grace_period_window_multipler mostly flat, 10 is good
+
+fingerprint_grace_period pretty flat
+
+min_window_ratio: try 0.575
+
+
+
+TODO:
+	-Try with merging 1) at original sensitivities, and 2) with higher thresholds at new and original sensitivites
+	-Try not shuffling real world data
+	-Try with more repititions to allow reuse to shine
+
+
+python run_experiment.py --datasets Arabic cmc --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datalocation ..\..\CCRawData --experimentname tD-8 --sensitivity 0.1 --state_estimator_swap_risk 0.1 --min_drift_likelihood_threshold 0.2 --min_estimated_posterior_threshold 0.2 --ifeatures IMF MI pacf --cpu 15
+
+
+Good parameter set?
+python run_experiment.py --datasets Arabic cmc AQTemp AQSex qg UCI-Wine RTREE RTREESAMPLE STAGGERS --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 --datalocation ..\..\CCRawData --experimentname bounds_test --sensitivity 0.1 --state_estimator_risk 0.5 --state_estimator_swap_risk 0.75 --min_drift_likelihood_threshold 0.2 --min_estimated_posterior_threshold 0.2 --ifeatures IMF MI pacf --cpu 2 --classifier lower_bound upper_bound middle_bound CC
+
+min_drift_likelihood_threshold - 0.225 - 0.175
+min_estimated_posterior_threshold - 0.200
+
+estimator risks:
+	swap - 0.75 - try 0.8-0.85
+	risk- 0.5	-	try 0.5-75
+
+
+
+Normalize posterior probability, so hoeffding bound makes sense (works on range 0-1?)
+Delete from transition matrix and update for merges. Make new functions that get called on these operations
+Add parameter for smoothing
+
+Normalizing posterior probability makes cmc and arabic better, but AQTemp worse... why?
+	- Note - It affects AQTemp differently depending on normalizing prior or posterior, but this should be the same? The only difference is the effect on background state posterior which is based on the active state prior only. Normalizing posterior INCREASES it relative to the prior, so maybe we should look at sensitivity effects, state_estimator_risk and state_estimator_swap risk. Also look at prior multipler and smoothing?
+	- It relatively increases posterior compared to prior. So if normalizing posterior is better, maybe reduce prior multipler?
+	- Try normalizing posterior, then adding normalization to background prior calc. Should be exactly the same as normalizing prior, so can check if there is anything else I have missed.
+	- Seems to be similar. Difference is essentially an 'adaptive background state prior' that reduces as more states are added. This reduces the chance of a new state over time. Can we formalize / improve this?
+		- So normalize prior, and add adaptive background state prior, drops from 1 at 1 state as more states are introduced.
+		- Possibly also shifting update prior before setting background posterior. Test to see if this is the cause of remaining difference.
+	- Try max of totals, rather than sum. This should top prior falling over time?
+
+background_state_prior_multiplier - 0.3 - 0.4
+
+Try many posterior estimators at different sensitivites
+	-Swap if any are better
+	-Use same risk and swap risk for each test?
+	- Only need to do posterior I think, because its the only one with the hoeffding bound check
+	-Doesn't work well, reverted. Leave for now, maybe come back to this idea
+
+Try to balance random tree leaves.
+	-After generating, run samples though and get the likelihood of each leaf
+	- Reassign labels so roughly equal proportions.
+	-Works well!
+
+python run_experiment.py --datalocation "S:\PhD\CCRawData" --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datasets Arabic cmc AQTemp --ifeatures IMF MI pacf --sensitivity 0.1 --state_estimator_risk 0.5 --state_estimator_swap_risk 0.75 --min_drift_likelihood_threshold 0.175 --min_estimated_posterior_threshold 0.2 --background_state_prior_multiplier 0.4 --max_sim_stdev 0.1 --cpu 15 --multihop_penalty 0.5 --desc "Test higher multihop penalty" --experimentname testSettings-V3-P13
+python run_experiment.py --datalocation "S:\PhD\CCRawData" --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datasets Arabic cmc AQTemp --ifeatures IMF MI pacf --sensitivity 0.1 --state_estimator_risk 0.5 --state_estimator_swap_risk 0.75 --min_drift_likelihood_threshold 0.175 --min_estimated_posterior_threshold 0.2 --background_state_prior_multiplier 0.4 --max_sim_stdev 0.15 --cpu 15 --multihop_penalty 0.6 --desc "Test higher multihop penalty" --experimentname testSettings-V3-P13-3
+
+Things which have an effect on priors:
+	Initializing new concepts when they are first transitioned to, rather than when they have their first transition... why?
+		-My guess is that it increases the number of states, which adds smoothing which has an effect. Especially for drift states, when the added concept may not ever get a transition, so would not be included otherwise for ages.
+		-It is because we initialized the concept after setting n_states in transition matrix, but befor setting it in prior max. This was making normalized values too high when calculating the first prior.
+			-Why does this increase accuracy? Maybe makes it harder for new states to establish. By is always pushing towards 0, maybe add in a prior towards the previous state?
+
+
+May be issue with prev state prior and transition state... check what it does when there is not previous transition, i.e., a deletion? with a transition it might find the transition state...

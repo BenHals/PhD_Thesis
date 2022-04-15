@@ -1,0 +1,6 @@
+README.md
+setup.py
+PhDCode.egg-info/PKG-INFO
+PhDCode.egg-info/SOURCES.txt
+PhDCode.egg-info/dependency_links.txt
+PhDCode.egg-info/top_level.txt

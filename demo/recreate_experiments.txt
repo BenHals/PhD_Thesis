@@ -1,0 +1,115 @@
+Recreate Memory Management:
+
+    python demo\cmc_testbed.py --cpus 4 --classifier advantage --dataset LM_RTREE --concept_max 25 --repository_cap 35 --run_minimal --repeats 15 --TMforward 0 --TMnoise 1.0
+
+    Notes:
+    Memory Management experiements used the advantage classifier, 25 concepts with 15 repeats each. The datasets used a mixture of difficult and easy concepts, which can be set with the LM_ identifier to invoke special behaviour in constructing this type of dataset.
+    Default settings set the difficulty of hard and easy concepts, and their proportions.
+    We use a circular FSM to sort the states, while in the memory management experiments state order was purely random. To recreate this, use TMforward = 0 to not give any priority to the next state, and TMnoise = 1.0 to give all states a base 1.0 priority. This is still slightly different behaviour, as in memory management datasets the drift could go to the same concept, which is not possible in the new system (as it isn't technically a drift...)
+
+    Performance on CI datasets:
+    python run_experiment.py --datasets AQSex AQTemp Arabic RTREESAMPLE_HARD STAGGERS cmc WINDSIM --classifier advantage --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --datalocation *Location* --experimentname memmanagement_CI_performance --minimal_output --cpu 15
+
+    WINDSIM-D:
+    python run_experiment.py --seeds 1 2 3 4 5 6 7 8 9 10 --cpu 64 --datasets LM_WINDSIM --experimentname windsimD_mem --repeats 15 --concept_max 4 --repository_cap 1 2 3 4 5 --classifier advantage --mem_management rA LRU --TMforward 0 --TMnoise 1.0 --minimal_output
+
+Recreate AiRStream:
+    Performance on Synthetic:
+    python run_experiment.py --seeds 1 2 3 4 5 --experimentname airstream_windsimd_v4 --datasets RBFMed LM_RTREE LM_WINDSIM --cpu 15 --repeats 5 --concept_max 2 --concept_length 8000 --classifier airstream lower_bound arf airstream_nobacktrack
+
+    notes:
+    This is recreating the experiments, but not exactly. In the original paper we used a mix of abrupt and gradual drift.
+
+    Performance on CI datasets:
+    python run_experiment.py --datasets AQSex AQTemp Arabic RTREESAMPLE_HARD STAGGERS cmc WINDSIM --classifier airstream airstream_nobacktrack --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --experimentname airstream_CI_performance --minimal_output --cpu 64 --datalocation ..\..\CCRawDataMinimal
+
+
+
+FiCSUM
+
+Feature Selection
+    (TODO): All datasets
+
+Selection
+    Recreate SELeCT-ER:
+    python run_experiment.py --datasets AQSex AQTemp Arabic RTREESAMPLE_HARD STAGGERS cmc WINDSIM --classifier cc --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --experimentname t_selecter_acc_CI_performance --minimal_output --cpu 64 --datalocation ..\..\CCRawDataMinimal --MIcalc accuracy --sim accuracy
+
+    notes:
+        Use the option for accuracy concept representation, and option for accuracy similarity measure (absolute distance)
+
+    
+    (TODO): All datasets
+
+    (TODO): Feature Selection Component
+    Recreate SELeCT with Histogram:
+    python run_experiment.py --datasets AQSex AQTemp Arabic RTREESAMPLE_HARD STAGGERS cmc WINDSIM --classifier cc --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --experimentname t_selecter_acc_CI_performance --minimal_output --cpu 64 --datalocation ..\..\CCRawDataMinimal --fsmethod histogram --fingerprintmethod auto 
+
+    Recreate long experiement:
+        python run_experiment.py --datasets AQSex AQTemp Arabic RTREESAMPLE_HARD STAGGERS cmc WINDSIM --classifier airstream --seeds 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 --experimentname t_histogram_buffer_ratio --minimal_output --cpu 64 --datalocation ..\..\CCRawDataMinimal --fsmethod histogram --fingerprintmethod auto --concept_length 3000 --repeats 10 --buffer_ratio 0.05
+
+    notes:
+        A longer experiment (10 repeats), where each repeat may be shorter (3000). For SELeCT we use a lower buffer ratio and histogram FS method.
+
+Case Study:
+
+    Experience Reuse Experiment:
+    python run_experiment.py --datasets RTREESAMPLE_Diff --conceptdifficulty 4 --concept_max 3 --repeats 15 --classifier CC --seeds 2 --experimentname t_reuse_benefit --single --datalocation ..\..\CCRawDataMinimal --noise 0.05 --buffer_ratio 0.05 --concept_length 3000
+    plot in: plot_context_inference.py
+    
+    notes:
+    Noise and lower concept_length to induce failures, conceptdifficulty higher so requires a few recurrences to fully learn, lots of repeats to learn over.
+    Use CC and advantage classifiers.
+    Can try playing with poisson and buffer ratio for specific behaviour.
+
+    Covtype Experiment:
+    python run_experiment.py --datasets covtype-Elevation --repeats 10 --repeatproportion -1 --single --buffer_ratio 0.05 --repository_max 6 --experimentname t_repo_max
+    python run_experiment.py --single --minimal_output --experimentname covtype-Elevation --datasets covtype-Elevation --repeats 10 --classifier advantage --seeds 1 --repeatproportion -1
+    notes:
+        Run with repo size unlimited (-1) and 6.
+
+    python run_experiment.py --datasets poker-LastCard --repeats 10 --repeatproportion -1 --single --fsmethod histogram --fingerprintmethod auto --window_size 50 --experimentname poker-LastCard --buffer_ratio 0.05
+    python run_experiment.py --datasets covtype-Elevation --repeats 10 --repeatproportion -1 --single --fsmethod histogram --fingerprintmethod auto --buffer_ratio 0.05
+    python run_experiment.py --datasets Rangiora_test2-day-nonordered --repeats 3 --repeatproportion 1.0 --single --buffer_ratio 0.005 --experimentname Rangiora_test2-day-mode-nonordered --GT_context_location RawData\Real\Rangiora_test2-day-nonordered\context.csv --window_size 50
+    python run_experiment.py --datasets cmcContextTest --GT_context_location RawData\Real\cmcContextTest\context.csv --single --repeats 1
+    python run_experiment.py --datasets poker-LastCard --repeats 10 --repeatproportion -1 --single --fsmethod histogram --fingerprintmethod auto --buffer_ratio 0.05 --experimentname poker-LastCard
+    python run_experiment.py --datasets Rangiora_test2-WS_4-nonordered --repeats 3 --repeatproportion 1.0 --single --buffer_ratio 0.005 --experimentname Rangiora_test2-WS_4-mode-nonordered --GT_context_location RawData\Real\Rangiora_test2-WS_4-nonordered\context.csv --window_size 50
+    python run_experiment.py --datasets poker-LastCard --repeats 10 --repeatproportion -1 --single --fsmethod histogram --fingerprintmethod auto --buffer_ratio 0.005 --experimentname poker-LastCard --repository_max 7
+    python run_experiment.py --datasets RTREESAMPLE_Diff --conceptdifficulty 4 --concept_max 3 --repeats 15 --classifier CC --seeds 2 --experimentname t_reuse_benefit --single --datalocation ..\..\CCRawDataMinimal --noise 0.05 --buffer_ratio 0.05 --concept_length 3000
+
+
+Notes:
+Testing on real data:
+    The code treats each dataset loaded to be a stationary concept.
+    This means that for real data, we Need to set context location! Otherwise the code will shuffle the data, thinking it is stationary.
+    Also, need to set repeats to 1 and repeatproportion to 1.
+
+    python run_experiment.py --datasets cmcContextTest --repeats 1 --repeatproportion 1.0 --single --experimentname cmcContextTest --GT_context_location RawData\Real\cmcContextTest\context.csv
+
+
+SELeCT
+
+    cndpm comparison:
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc --seeds 15 --minimal_output
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc_cndpm_base --seeds 15 --minimal_output --batch_learning
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound --seeds 15 --minimal_output
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound_cndpm_base --seeds 15 --minimal_output --batch_learning
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 15 --minimal_output --cndpm_dont_use_prior
+        python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 15 --minimal_output
+
+        (Note: we need batch_learning for cndpm base classifiers, but not for cndpm itself)
+        (Note: --cndpm_dont_use_prior controls prior)
+
+
+EXTRA:
+python run_experiment.py --datasets Rangiora_test2-WS_4-nonordered --repeats 3 --repeatproportion 1.0 --single --buffer_ratio 0.005 --experimentname Rangiora_test3-WS_4-mode-nonordered --GT_context_location RawData\Real\Rangiora_test2-WS_4-nonordered\context.csv --window_size 50 --classifier ficsum --fsmethod histogram --fingerprintmethod histogram
+python run_experiment.py --single --minimal_output --experimentname covtype-Elevation --datasets covtype-Elevation --repeats 10 --classifier advantage --seeds 1 --repeatproportion -1
+python run_experiment.py --datasets Rangiora_test2-WD_4-nonordered --repeats 3 --repeatproportion 1.0 --single --buffer_ratio 0.005 --experimentname Rangiora_test3-WD_4-mode-nonordered --GT_context_location RawData\Real\Rangiora_test2-WD_4-nonordered\context.csv --window_size 100 --classifier airstream
+python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc --seeds 12 --minimal_output  & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc --seeds 13 --minimal_output & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc --seeds 14 --minimal_output & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc --seeds 15 --minimal_output
+python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound_cndpm_base --seeds 12 --minimal_output --batch_learning & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound_cndpm_base --seeds 13 --minimal_output --batch_learning & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound_cndpm_base --seeds 14 --minimal_output --batch_learning & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier upper_bound_cndpm_base --seeds 15 --minimal_output --batch_learning
+python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 12 --minimal_output --cndpm_dont_use_prior & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 13 --minimal_output --cndpm_dont_use_prior & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 14 --minimal_output --cndpm_dont_use_prior & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cndpm --seeds 15 --minimal_output --cndpm_dont_use_prior
+python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc_cndpm_base --seeds 12 --minimal_output --batch_learning & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc_cndpm_base --seeds 13 --batch_learning --minimal_output & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc_cndpm_base --seeds 14 --minimal_output --batch_learning & python run_experiment.py --single --datasets cmc Arabic AQSex AQTemp RTREESAMPLE_HARD STAGGERS WINDSIM --experimentname cndpm_comparison --classifier cc_cndpm_base --seeds 15 --minimal_output --batch_learning
+python evaluation\get_results.py --experimentname cndpm_comparison
+
+
+
+
